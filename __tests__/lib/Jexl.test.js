@@ -20,6 +20,27 @@ describe('Jexl', () => {
     it('passes context', async () => {
       await expect(inst.eval('foo', { foo: 'bar' })).resolves.toBe('bar')
     })
+    it('resolves data from the parent context', async () => {
+      const context = { foo1: { baz1: { bar1: 'ket' } } }
+      const parentMap = new Map()
+      parentMap.set(context, { startAt: context, sibling: { name: 'oof' } })
+      await expect(inst.eval('../sibling.name', context, parentMap)).resolves.toBe('oof')
+    })
+    it('resolves data from the parent context', async () => {
+      const context = { foo1: { baz1: { bar1: 'ket' } }, list: [ { name: 'oof', id: 1 }, { name: 'rab', id: 2 } ] }
+      const parentMap = new Map()
+      parentMap.set(context, { startAt: context, sibling: { name: 'oof' } })
+      await expect(inst.eval('list[.name == ../sibling.name]', context, parentMap)).resolves.toEqual([{ id: 1, name: 'oof' }])
+    })
+    it('resolves data from the relative parent context', async () => {
+      const fullContext = { grandParent1: { parent: { startAt: { foo2: { baz2: { bar2: 'ket' } } }, sibling: { name: 'oof' } } }, grandParent2: { name: 'bar' } }
+      const context = fullContext.grandParent1.parent.startAt
+      const parentMap = new Map()
+      parentMap.set(fullContext.grandParent1.parent.startAt, fullContext.grandParent1.parent)
+      parentMap.set(fullContext.grandParent1.parent, fullContext.grandParent1)
+      parentMap.set(fullContext.grandParent1, fullContext)
+      await expect(inst.eval('../../../grandParent2.name', context, parentMap)).resolves.toBe('bar')
+    })
   })
   describe('evalSync', () => {
     it('returns success', () => {

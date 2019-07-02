@@ -229,6 +229,23 @@ describe('Parser', () => {
       right: { type: 'Literal', value: 1 }
     })
   })
+  it('chains traversed parent identifiers', () => {
+    inst.addTokens(lexer.tokenize('../../bar.baz'))
+    expect(inst.complete()).toEqual({
+      from: {
+        from: {
+          from: {
+            type: 'ParentIdentifier'
+          },
+          type: 'ParentIdentifier'
+        },
+        type: 'Identifier',
+        value: 'bar'
+      },
+      type: 'Identifier',
+      value: 'baz'
+    })
+  })
   it('applies transforms and arguments', () => {
     inst.addTokens(lexer.tokenize('foo|tr1|tr2.baz|tr3({bar:"tek"})'))
     expect(inst.complete()).toEqual({
