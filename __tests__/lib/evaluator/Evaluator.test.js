@@ -166,4 +166,19 @@ describe('Evaluator', () => {
     const e = new Evaluator(grammar, null, { a: {}, d: 4 })
     return expect(e.eval(toTree('a.b[.c == d]'))).resolves.toHaveLength(0)
   })
+  it('resolves the parent context', async () => {
+    const context = { foo1: { baz1: { bar1: 'ket' } } }
+    const parentMap = new Map()
+    const parent = { startAt: context, sibling: { name: 'oof' } }
+    parentMap.set(context, parent)
+    const e = new Evaluator(grammar, null, context, null, parentMap)
+    return expect(e.eval(toTree('../'))).resolves.toBe(parent)
+  })
+  it('evaluates values from parent of the context', async () => {
+    const context = { foo1: { baz1: { bar1: 'ket' } } }
+    const parentMap = new Map()
+    parentMap.set(context, { startAt: context, sibling: { name: 'oof' } })
+    const e = new Evaluator(grammar, null, context, null, parentMap)
+    return expect(e.eval(toTree('../sibling.name'))).resolves.toEqual('oof')
+  })
 })

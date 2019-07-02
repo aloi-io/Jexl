@@ -20,13 +20,20 @@ describe('Jexl', () => {
     it('passes context', async () => {
       await expect(inst.eval('foo', { foo: 'bar' })).resolves.toBe('bar')
     })
+    it('resolves the parent context itself', async () => {
+      const context = { foo1: { baz1: { bar1: 'ket' } } }
+      const parentMap = new Map()
+      const parent = { startAt: context, sibling: { name: 'oof' } }
+      parentMap.set(context, parent)
+      await expect(inst.eval('../', context, parentMap)).resolves.toBe(parent)
+    })
     it('resolves data from the parent context', async () => {
       const context = { foo1: { baz1: { bar1: 'ket' } } }
       const parentMap = new Map()
       parentMap.set(context, { startAt: context, sibling: { name: 'oof' } })
       await expect(inst.eval('../sibling.name', context, parentMap)).resolves.toBe('oof')
     })
-    it('resolves data from the parent context', async () => {
+    it('resolves data from the parent context inside filters', async () => {
       const context = { foo1: { baz1: { bar1: 'ket' } }, list: [ { name: 'oof', id: 1 }, { name: 'rab', id: 2 } ] }
       const parentMap = new Map()
       parentMap.set(context, { startAt: context, sibling: { name: 'oof' } })

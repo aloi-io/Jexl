@@ -13,6 +13,12 @@ describe('Lexer', () => {
     inst = new Lexer(grammar)
   })
   describe('Elements', () => {
+    it('counts ../ as an element', () => {
+      const str = '../'
+      const elems = inst.getElements(str)
+      expect(elems).toHaveLength(1)
+      expect(elems[0]).toBe(str)
+    })
     it('counts a string as one element', () => {
       const str = '"foo"'
       const elems = inst.getElements(str)

@@ -229,7 +229,22 @@ describe('Parser', () => {
       right: { type: 'Literal', value: 1 }
     })
   })
-  it('chains traversed parent identifiers', () => {
+  it('tokenizes ../ as a ParentIdentifier', () => {
+    inst.addTokens(lexer.tokenize('../'))
+    expect(inst.complete()).toEqual({
+      type: 'ParentIdentifier'
+    })
+  })
+  it('chains parent identifiers', () => {
+    inst.addTokens(lexer.tokenize('../../'))
+    expect(inst.complete()).toEqual({
+      from: {
+        type: 'ParentIdentifier'
+      },
+      type: 'ParentIdentifier'
+    })
+  })
+  it('traverses siblings of parent identifiers', () => {
     inst.addTokens(lexer.tokenize('../../bar.baz'))
     expect(inst.complete()).toEqual({
       from: {
@@ -244,6 +259,37 @@ describe('Parser', () => {
       },
       type: 'Identifier',
       value: 'baz'
+    })
+  })
+  it('traverses siblings of parent identifiers from inside a filter', () => {
+    inst.addTokens(lexer.tokenize('list[.name == ../bar.baz]'))
+    expect(inst.complete()).toEqual({
+      expr: {
+        left: {
+          relative: true,
+          type: 'Identifier',
+          value: 'name'
+        },
+        operator: '==',
+        right: {
+          from: {
+            from: {
+              type: 'ParentIdentifier'
+            },
+            type: 'Identifier',
+            value: 'bar'
+          },
+          type: 'Identifier',
+          value: 'baz'
+        },
+        type: 'BinaryExpression'
+      },
+      relative: true,
+      subject: {
+        type: 'Identifier',
+        value: 'list'
+      },
+      type: 'FilterExpression'
     })
   })
   it('applies transforms and arguments', () => {
