@@ -1,4 +1,5 @@
 # Jexl [![Build Status](https://travis-ci.org/TomFrost/Jexl.svg?branch=master)](https://travis-ci.org/TomFrost/Jexl)
+This is a fork of the amazing JEXL project created by [Tom Frost](https://github.com/TomFrost)
 
 Javascript Expression Language: Powerful context-based expression parser and evaluator
 
