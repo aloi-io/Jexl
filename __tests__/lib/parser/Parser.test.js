@@ -545,4 +545,50 @@ describe('Parser', () => {
       }
     })
   })
+  it('parses lambdas', () => {
+    inst.addTokens(lexer.tokenize('rawData|map(fn(param2, param3, param4)=>1+1, "test")'))
+    expect(inst.complete()).toEqual({
+      "args": [
+        {
+          "params": [
+            {
+              "type": "Identifier",
+              "value": "param2"
+            },
+            {
+              "type": "Identifier",
+              "value": "param3"
+            },
+            {
+              "type": "Identifier",
+              "value": "param4"
+            }
+          ],
+          "right": {
+            "left": {
+              "type": "Literal",
+              "value": 1
+            },
+            "operator": "+",
+            "right": {
+              "type": "Literal",
+              "value": 1
+            },
+            "type": "BinaryExpression"
+          },
+          "type": "Lambda"
+        },
+        {
+          "type": "Literal",
+          "value": "test"
+        }
+      ],
+      "name": "map",
+      "subject": {
+        "type": "Identifier",
+        "value": "rawData"
+      },
+      "type": "Transform"
+    })
+  })
 })

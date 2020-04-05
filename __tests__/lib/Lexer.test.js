@@ -117,6 +117,18 @@ describe('Lexer', () => {
         raw: '('
       }])
     })
+    it('recognizes lambdas',()=>{
+      const tokens = inst.getTokens(['fn(',')=>'])
+      expect(tokens).toEqual([{
+        type: 'lambdaStart',
+        value: 'fn(',
+        raw: 'fn('
+      },{
+        type: 'lambdaEnd',
+        value: ')=>',
+        raw: ')=>'
+      }])
+    })
     it('recognizes identifiers', () => {
       const tokens = inst.getTokens(['_foo9_bar'])
       expect(tokens).toEqual([{

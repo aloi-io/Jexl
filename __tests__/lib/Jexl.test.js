@@ -27,6 +27,20 @@ describe('Jexl', () => {
       parentMap.set(context, parent)
       await expect(inst.eval('../', context, parentMap)).resolves.toBe(parent)
     })
+    it('resolves the parent context if it is an array', async () => {
+      const parent = [ { name: 'foo' }, { name: 'bar' } ]
+      const parentMap = new Map()
+      const context = parent[1]
+      parentMap.set(context, parent)
+      await expect(inst.eval('../', context, parentMap)).resolves.toBe(parent)
+    })
+    it('resolves the parent context if it is an array element', async () => {
+      const parent = [ { name: 'foo' }, { name: 'bar' } ]
+      const parentMap = new Map()
+      const context = parent[1]
+      parentMap.set(context, parent)
+      await expect(inst.eval('../[0]', context, parentMap)).resolves.toBe(parent[0])
+    })
     it('resolves data from the parent context', async () => {
       const context = { foo1: { baz1: { bar1: 'ket' } } }
       const parentMap = new Map()

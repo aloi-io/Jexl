@@ -160,11 +160,16 @@ describe('Evaluator', () => {
   })
   it('does not treat falsey properties as undefined', async () => {
     const e = new Evaluator(grammar)
-    return expect(e.eval(toTree('"".length'))).resolves.toBe(0)
+    const tree = toTree('"".length')
+    return expect(e.eval(tree)).resolves.toBe(0)
   })
   it('returns empty array when applying a filter to an undefined value', async () => {
     const e = new Evaluator(grammar, null, { a: {}, d: 4 })
     return expect(e.eval(toTree('a.b[.c == d]'))).resolves.toHaveLength(0)
+  })
+  it('returns null when selecting an object property from a filter of an undefined value', async () => {
+    const e = new Evaluator(grammar, null, { a: {}, d: 4 })
+    return expect(e.eval(toTree('a.b[.c == d].value'))).resolves.toBe(null)
   })
   it('resolves the parent context', async () => {
     const context = { foo1: { baz1: { bar1: 'ket' } } }
@@ -180,5 +185,18 @@ describe('Evaluator', () => {
     parentMap.set(context, { startAt: context, sibling: { name: 'oof' } })
     const e = new Evaluator(grammar, null, context, null, parentMap)
     return expect(e.eval(toTree('../sibling.name'))).resolves.toEqual('oof')
+  })
+  it('evaluates values from parent of the context', async () => {
+    const context = { list: ['a', 'b', 'c', 'd'] }
+    const transforms = {
+      map: function (arr, mapFn) {
+        return arr.map(mapFn);
+      },
+      upper: function(str) {
+        return str.toUpperCase()
+      }
+    }
+    const e = new Evaluator(grammar, transforms, context, null)
+    return expect(e.eval(toTree('list|map(fn(val, idx)=>val|upper+"-"+idx)'))).resolves.toEqual(["A-0", "B-1", "C-2", "D-3"])
   })
 })
